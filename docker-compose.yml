@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  gateway:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    command: uvicorn gateway:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - booking_service
+      - pricing_service
+
+  booking_service:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    command: uvicorn booking_service:app --host 0.0.0.0 --port 8002
+    ports:
+      - "8002:8002"
+
+  pricing_service:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    command: uvicorn pricing_service:app --host 0.0.0.0 --port 8001
+    ports:
+      - "8001:8001"
+
+  frontend:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
